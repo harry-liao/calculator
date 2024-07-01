@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .display {
+            background: #e5e7eb;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: right;
+            font-size: 2rem;
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #e5e7eb;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .button:hover {
+            background: #d1d5db;
+        }
+        .button:active {
+            background: #9ca3af;
+        }
+        .button.ac {
+            background: #f87171;
+            color: white;
+        }
+        .button.ac:hover {
+            background: #ef4444;
+        }
+        .button.ac:active {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="grid grid-cols-4 gap-4">
+            <div class="button col-span-2" id="del">del</div>
+            <div class="button col-span-2 ac" id="ac">AC</div>
+            <div class="button" id="seven">7</div>
+            <div class="button" id="eight">8</div>
+            <div class="button" id="nine">9</div>
+            <div class="button" id="divide">/</div>
+            <div class="button" id="four">4</div>
+            <div class="button" id="five">5</div>
+            <div class="button" id="six">6</div>
+            <div class="button" id="multiply">*</div>
+            <div class="button" id="one">1</div>
+            <div class="button" id="two">2</div>
+            <div class="button" id="three">3</div>
+            <div class="button" id="subtract">-</div>
+            <div class="button" id="zero">0</div>
+            <div class="button" id="decimal">.</div>
+            <div class="button" id="equals">=</div>
+            <div class="button" id="add">+</div>
+        </div>
+    </div>
+
+    <script type="module">
+        const display = document.getElementById('display');
+        let currentInput = '';
+        let operator = '';
+        let previousInput = '';
+
+        function updateDisplay(value) {
+            display.textContent = value;
+        }
+
+        function handleNumber(number) {
+            if (currentInput.length < 10) {
+                currentInput += number;
+                updateDisplay(currentInput);
+            }
+        }
+
+        function handleOperator(op) {
+            if (currentInput === '' && op === '-') {
+                currentInput = '-';
+                updateDisplay(currentInput);
+                return;
+            }
+            if (currentInput === '') return;
+            if (previousInput !== '') {
+                calculate();
+            }
+            operator = op;
+            previousInput = currentInput;
+            currentInput = '';
+        }
+
+        function calculate() {
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            if (isNaN(prev) || isNaN(current)) return;
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            currentInput = result.toString();
+            operator = '';
+            previousInput = '';
+            updateDisplay(currentInput);
+        }
+
+        function handleDelete() {
+            currentInput = currentInput.slice(0, -1);
+            updateDisplay(currentInput || '0');
+        }
+
+        function handleClear() {
+            currentInput = '';
+            operator = '';
+            previousInput = '';
+            updateDisplay('0');
+        }
+
+        document.getElementById('zero').addEventListener('click', () => handleNumber('0'));
+        document.getElementById('one').addEventListener('click', () => handleNumber('1'));
+        document.getElementById('two').addEventListener('click', () => handleNumber('2'));
+        document.getElementById('three').addEventListener('click', () => handleNumber('3'));
+        document.getElementById('four').addEventListener('click', () => handleNumber('4'));
+        document.getElementById('five').addEventListener('click', () => handleNumber('5'));
+        document.getElementById('six').addEventListener('click', () => handleNumber('6'));
+        document.getElementById('seven').addEventListener('click', () => handleNumber('7'));
+        document.getElementById('eight').addEventListener('click', () => handleNumber('8'));
+        document.getElementById('nine').addEventListener('click', () => handleNumber('9'));
+        document.getElementById('decimal').addEventListener('click', () => handleNumber('.'));
+
+        document.getElementById('add').addEventListener('click', () => handleOperator('+'));
+        document.getElementById('subtract').addEventListener('click', () => handleOperator('-'));
+        document.getElementById('multiply').addEventListener('click', () => handleOperator('*'));
+        document.getElementById('divide').addEventListener('click', () => handleOperator('/'));
+
+        document.getElementById('equals').addEventListener('click', calculate);
+        document.getElementById('del').addEventListener('click', handleDelete);
+        document.getElementById('ac').addEventListener('click', handleClear);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9') {
+                handleNumber(event.key);
+            } else if (event.key === '.') {
+                handleNumber('.');
+            } else if (event.key === '+') {
+                handleOperator('+');
+            } else if (event.key === '-') {
+                handleOperator('-');
+            } else if (event.key === '*') {
+                handleOperator('*');
+            } else if (event.key === '/') {
+                handleOperator('/');
+            } else if (event.key === 'Enter') {
+                calculate();
+            } else if (event.key === 'Backspace') {
+                handleDelete();
+            } else if (event.key === 'Escape') {
+                handleClear();
+            }
+        });
+    </script>
+</body>
+</html>
